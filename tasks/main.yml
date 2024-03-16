@@ -1,0 +1,62 @@
+---
+# role: jam82.fail2ban
+# file: tasks/main.yml
+
+- name: "Fail2ban | Install fail2ban"
+  become: true
+  ansible.builtin.package:
+    name: fail2ban
+    state: present
+
+- name: "Fail2ban | Generate fail2ban configuration"
+  become: true
+  ansible.builtin.template:
+    src: "fail2ban.local.j2"
+    dest: "/etc/fail2ban/fail2ban.local"
+    owner: root
+    group: root
+    mode: '0640'
+  notify: Restart fail2ban
+
+- name: "Fail2ban | Generate fail2ban jails configuration"
+  become: true
+  community.general.ini_file:
+    path: "/etc/fail2ban/jail.local"
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    state: "{{ item.state | default('present') }}"
+    create: true
+    owner: root
+    group: root
+    mode: '0640'
+  loop: "{{ fail2ban_jail_local }}"
+  notify: Restart fail2ban
+
+- name: "Fail2ban | Include tasks for custom actions"
+  ansible.builtin.include_tasks: "action.yml"
+  loop: "{{ fail2ban_actions }}"
+  loop_control:
+    loop_var: action
+  when: fail2ban_actions is defined and fail2ban_actions | length > 0
+
+- name: "Fail2ban | Include tasks for custom filters"
+  ansible.builtin.include_tasks: "filter.yml"
+  loop: "{{ fail2ban_filters }}"
+  loop_control:
+    loop_var: filter
+  when: fail2ban_filters is defined and fail2ban_filters | length > 0
+
+- name: "Fail2ban | Include tasks for custom jails"
+  ansible.builtin.include_tasks: "jail.yml"
+  loop: "{{ fail2ban_jails }}"
+  loop_control:
+    loop_var: jail
+  when: fail2ban_jails is defined and fail2ban_jails | length > 0
+
+- name: "Fail2ban | Start fail2ban service"
+  become: true
+  ansible.builtin.service:
+    name: fail2ban
+    state: started
+    enabled: true

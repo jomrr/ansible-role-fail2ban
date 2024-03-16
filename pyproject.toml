@@ -1,0 +1,20 @@
+[project]
+name = "fail2ban"
+version = "0.0.0"
+description = "Ansible role for setting up fail2ban."
+authors = ["Jonas Mauer"]
+license = "MIT"
+keywords = ["fail2ban", "security", "monitoring", "logging"]
+repository = "https://github.com/jam82/ansible-role-fail2ban"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+
+[tool.semantic_release]
+commit_message = "build(release): version {version}"
+major_on_zero = false
+upload_to_pypi = false
+upload_to_vcs_release = true
+version_toml = [
+    "pyproject.toml:project.version",
+]

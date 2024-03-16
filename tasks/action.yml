@@ -1,0 +1,21 @@
+---
+# role: jam82.fail2ban
+# file: tasks/action.yml
+
+- name: "Fail2ban | Create custom action"
+  become: true
+  community.general.ini_file:
+    dest: "/etc/fail2ban/action.d/{{ action.name }}.local"
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    state: "{{ item.state | default('present') }}"
+    create: true
+    owner: root
+    group: root
+    mode: '0640'
+  loop: "{{ action.options }}"
+  loop_control:
+    loop_var: item
+  notify: Restart fail2ban
+  when: action.options is defined

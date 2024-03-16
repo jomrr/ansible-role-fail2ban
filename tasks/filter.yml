@@ -1,0 +1,21 @@
+---
+# role: jam82.fail2ban
+# file: tasks/filter.yml
+
+- name: "Fail2ban | Create custom filter"
+  become: true
+  community.general.ini_file:
+    dest: "/etc/fail2ban/filter.d/{{ filter.name }}.local"
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    state: "{{ item.state | default('present') }}"
+    create: true
+    owner: root
+    group: root
+    mode: '0640'
+  loop: "{{ filter.options }}"
+  loop_control:
+    loop_var: item
+  notify: Restart fail2ban
+  when: filter.options is defined
