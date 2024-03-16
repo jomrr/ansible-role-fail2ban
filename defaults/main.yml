@@ -40,55 +40,55 @@ fail2ban_jail_local:
     value: "%(action_)s"
 
 # /etc/fail2ban/action.d/{{ item.name }}.local
-fail2ban_actions:
-  - name: firewallcmd-custom
-    options:
-      - section: INCLUDES
-        option: before
-        value: "firewallcmd-common"
-      - section: Definition
-        option: actionstart
-        value: "..."
+fail2ban_actions: []
+  # - name: firewallcmd-custom
+  #   options:
+  #     - section: INCLUDES
+  #       option: before
+  #       value: "firewallcmd-common"
+  #     - section: Definition
+  #       option: actionstart
+  #       value: "..."
 
 # /etc/fail2ban/filter.d/{{ item.name }}.local
-fail2ban_filters:
-  - name: vaultwarden
-    options:
-      - section: INCLUDES
-        option: before
-        value: common.conf
-      - section: Definition
-        option: failregex
-        value: '^.*Username or password is incorrect\. Try again\. IP: <ADDR>\. Username:.*$'
-      - section: Definition
-        option: ignoreregex
-        value: ""
+fail2ban_filters: []
+  # - name: vaultwarden
+  #   options:
+  #     - section: INCLUDES
+  #       option: before
+  #       value: common.conf
+  #     - section: Definition
+  #       option: failregex
+  #       value: '^.*Username or password is incorrect\. Try again\. IP: <ADDR>\. Username:.*$'
+  #     - section: Definition
+  #       option: ignoreregex
+  #       value: ""
 
 # /etc/fail2ban/jail.d/{{ item.name }}.local
-fail2ban_jails:
-  - name: vaultwarden
-    options:
-      - section: vaultwarden
-        option: enabled
-        value: true
-      - section: vaultwarden
-        option: port
-        value: "80,443,8081"
-      - section: vaultwarden
-        option: filter
-        value: vaultwarden
-      - section: vaultwarden
-        option: logpath
-        value: "/var/log/vaultwarden/vaultwarden.log"
-      - section: vaultwarden
-        option: maxretry
-        value: 5
-      - section: vaultwarden
-        option: bantime
-        value: 3600
-      - section: vaultwarden
-        option: findtime
-        value: 600
-      - section: vaultwarden
-        option: banaction
-        value: "%(banaction_allports)s"
+fail2ban_jails: []
+  # - name: vaultwarden
+  #   options:
+  #     - section: vaultwarden
+  #       option: enabled
+  #       value: true
+  #     - section: vaultwarden
+  #       option: port
+  #       value: "80,443,8081"
+  #     - section: vaultwarden
+  #       option: filter
+  #       value: vaultwarden
+  #     - section: vaultwarden
+  #       option: logpath
+  #       value: "/var/log/vaultwarden/vaultwarden.log"
+  #     - section: vaultwarden
+  #       option: maxretry
+  #       value: 5
+  #     - section: vaultwarden
+  #       option: bantime
+  #       value: 3600
+  #     - section: vaultwarden
+  #       option: findtime
+  #       value: 600
+  #     - section: vaultwarden
+  #       option: banaction
+  #       value: "%(banaction_allports)s"
