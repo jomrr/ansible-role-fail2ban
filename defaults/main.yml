@@ -39,7 +39,7 @@ fail2ban_jail_local:
     option: action
     value: "%(action_)s"
 
-# /etc/fail2ban/action.d/{{ item.name }}.local
+# /etc/fail2ban/action.d/{{ action.name }}.local
 fail2ban_actions: []
   # - name: firewallcmd-custom
   #   options:
@@ -50,7 +50,7 @@ fail2ban_actions: []
   #       option: actionstart
   #       value: "..."
 
-# /etc/fail2ban/filter.d/{{ item.name }}.local
+# /etc/fail2ban/filter.d/{{ filter.name }}.local
 fail2ban_filters: []
   # - name: vaultwarden
   #   options:
@@ -64,7 +64,7 @@ fail2ban_filters: []
   #       option: ignoreregex
   #       value: ""
 
-# /etc/fail2ban/jail.d/{{ item.name }}.local
+# /etc/fail2ban/jail.d/{{ jail.name }}.local
 fail2ban_jails: []
   # - name: vaultwarden
   #   options:
