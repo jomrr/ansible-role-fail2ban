@@ -1,5 +1,5 @@
 ---
-# name: jam82.ansible-role-fail2ban
+# name: jomrr.ansible-role-fail2ban
 # file: molecule/resources/playbooks/verify.yml
 
 - name: "PLAYBOOK | Verify"

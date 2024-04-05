@@ -1,5 +1,5 @@
 ---
-# role: jam82.fail2ban
+# role: jomrr.fail2ban
 # file: handlers/main.yml
 
 - name: Restart fail2ban

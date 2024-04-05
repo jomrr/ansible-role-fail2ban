@@ -1,5 +1,5 @@
 ---
-# role: jam82.fail2ban
+# role: jomrr.fail2ban
 # file: tasks/main.yml
 
 - name: "Fail2ban | Install fail2ban"
