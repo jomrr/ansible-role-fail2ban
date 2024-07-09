@@ -1,0 +1,8 @@
+---
+# role: jomrr.fail2ban
+# file: meta/requirements.yml
+
+collections:
+  - {'name': 'community.general'}
+
+roles: []

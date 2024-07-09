@@ -1,5 +1,0 @@
----
-# name: jomrr.fail2ban
-# file: meta/requirements.yml
-
-- name: community.general
