@@ -1,0 +1,29 @@
+---
+# role: fail2ban
+# file: molecule/resources/playbooks/side_effect.yml
+
+- name: "FAIL2BAN | Exercise configuration changes on a running daemon"
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: "FAIL2BAN | Change the daemon logging level"
+      ansible.builtin.include_role:
+        name: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}"
+      vars:
+        fail2ban_loglevel: DEBUG
+
+    - name: "FAIL2BAN | Apply the pending restart"
+      ansible.builtin.meta: flush_handlers
+
+    - name: "FAIL2BAN | Read the running daemon logging level"
+      become: true
+      become_user: root
+      ansible.builtin.command: fail2ban-client get loglevel
+      changed_when: false
+      register: __fail2ban_loglevel
+
+    - name: "FAIL2BAN | Verify the restart activated the new configuration"
+      ansible.builtin.assert:
+        that:
+          - "'DEBUG' in __fail2ban_loglevel.stdout"
+        quiet: true

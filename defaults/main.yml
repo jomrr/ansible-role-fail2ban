@@ -1,18 +1,35 @@
 ---
-# role: jomrr.fail2ban
+# role: fail2ban
 # file: defaults/main.yml
 
-# /etc/fail2ban/fail2ban.conf
+# Persistent ban database path; use 'None' to disable persistence.
 fail2ban_dbfile: /var/lib/fail2ban/fail2ban.sqlite3
+
+# Maximum number of matched log entries stored per ban in the database.
 fail2ban_dbmaxmatches: 10
+
+# Retention period for stored bans, in seconds or Fail2ban duration notation.
 fail2ban_dbpurgeage: 86400
+
+# Daemon logging level.
 fail2ban_loglevel: INFO
+
+# Log output destination, such as a file path, SYSLOG, or STDERR.
 fail2ban_logtarget: /var/log/fail2ban.log
+
+# Daemon process ID file path.
 fail2ban_pidfile: /var/run/fail2ban/fail2ban.pid
+
+# Unix socket path used by fail2ban-client.
 fail2ban_socket: /var/run/fail2ban/fail2ban.sock
+
+# Thread stack size in KiB; zero uses the platform default.
 fail2ban_stacksize: 0
 
-# /etc/fail2ban/jail.local
+# Syslog socket path; auto selects the platform socket when logging to SYSLOG.
+fail2ban_syslogsocket: auto
+
+# INI options in jail.local; state defaults to present and absent needs no value.
 fail2ban_jail_local:
   - section: DEFAULT
     option: bantime
@@ -25,13 +42,13 @@ fail2ban_jail_local:
     value: 3
   - section: DEFAULT
     option: ignoreip
-    value: "127.0.0.1/8 ::1 {{ ansible_default_ipv4.network }}/{{ ansible_default_ipv4.netmask }}"
+    value: "127.0.0.1/8 ::1 {{ ansible_facts.default_ipv4.network }}/{{ ansible_facts.default_ipv4.netmask }}"
   - section: DEFAULT
     option: destemail
     value: root@localhost
   - section: DEFAULT
     option: sender
-    value: "root@{{ ansible_fqdn }}"
+    value: "root@{{ ansible_facts.fqdn }}"
   - section: DEFAULT
     option: mta
     value: sendmail
@@ -39,7 +56,7 @@ fail2ban_jail_local:
     option: action
     value: "%(action_)s"
 
-# /etc/fail2ban/action.d/{{ action.name }}.local
+# Named action.d/*.local files and their INI options; absent options need no value.
 fail2ban_actions: []
   # - name: firewallcmd-custom
   #   options:
@@ -50,7 +67,7 @@ fail2ban_actions: []
   #       option: actionstart
   #       value: "..."
 
-# /etc/fail2ban/filter.d/{{ filter.name }}.local
+# Named filter.d/*.local files and their INI options; absent options need no value.
 fail2ban_filters: []
   # - name: vaultwarden
   #   options:
@@ -64,7 +81,7 @@ fail2ban_filters: []
   #       option: ignoreregex
   #       value: ""
 
-# /etc/fail2ban/jail.d/{{ jail.name }}.local
+# Named jail.d/*.local files and their INI options; absent options need no value.
 fail2ban_jails: []
   # - name: vaultwarden
   #   options:

@@ -1,12 +1,55 @@
 ---
-# name: jomrr.ansible-role-fail2ban
+# role: fail2ban
 # file: molecule/resources/playbooks/verify.yml
 
-- name: "PLAYBOOK | Verify"
+- name: "FAIL2BAN | Verify active configuration and custom ban behavior"
   hosts: all
   gather_facts: false
   tasks:
-    - name: "Assert true"
+    - name: "FAIL2BAN | Query effective daemon and jail settings"
+      become: true
+      become_user: root
+      ansible.builtin.command:
+        argv: "{{ ['fail2ban-client', 'get'] + __fail2ban_query.arguments }}"
+      changed_when: false
+      register: __fail2ban_runtime
+      loop:
+        - { arguments: [loglevel], expected: NOTICE }
+        - { arguments: [molecule, bantime], expected: '120' }
+        - { arguments: [molecule, findtime], expected: '60' }
+      loop_control:
+        loop_var: __fail2ban_query
+        label: "{{ __fail2ban_query.arguments | join(' ') }}"
+
+    - name: "FAIL2BAN | Verify removed overrides expose inherited runtime values"
       ansible.builtin.assert:
-        that: "true"
-        fail_msg: "This should never fail"
+        that:
+          - __fail2ban_result.__fail2ban_query.expected in __fail2ban_result.stdout
+        quiet: true
+      loop: "{{ __fail2ban_runtime.results }}"
+      loop_control:
+        loop_var: __fail2ban_result
+        label: "{{ __fail2ban_result.__fail2ban_query.arguments | join(' ') }}"
+
+    - name: "FAIL2BAN | Read service state"
+      ansible.builtin.service_facts:
+
+    - name: "FAIL2BAN | Verify service enablement and running state"
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.services['fail2ban.service'].status == 'enabled'
+          - ansible_facts.services['fail2ban.service'].state == 'running'
+        quiet: true
+
+    - name: "FAIL2BAN | Write a matching application failure"
+      become: true
+      become_user: root
+      ansible.builtin.lineinfile:
+        path: /var/log/fail2ban-molecule.log
+        line: "{{ now(utc=true, fmt='%Y-%m-%dT%H:%M:%SZ') }} 192.0.2.1 authentication failed"
+
+    - name: "FAIL2BAN | Wait for the custom action to handle the failure"
+      ansible.builtin.wait_for:
+        path: /tmp/fail2ban-molecule.banned
+        state: present
+        timeout: 30

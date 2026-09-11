@@ -1,49 +1,83 @@
 ---
-# name: jomrr.ansible-role-fail2ban
+# role: fail2ban
 # file: molecule/resources/playbooks/prepare.yml
 
-- name: "PLAYBOOK | Prepare"
+- name: "FAIL2BAN | Prepare configuration inheritance fixtures"
   hosts: all
-  become: true
   gather_facts: true
   tasks:
-    - name: "Update apk cache and installed packages"
-      community.general.apk:
-        available: true
-        update_cache: true
-        upgrade: true
-      when: ansible_pkg_mgr == "apk"
+    - name: "FAIL2BAN | Enable the AlmaLinux test package repository"
+      become: true
+      become_user: root
+      ansible.builtin.package:
+        name: epel-release
+        state: present
+      when: ansible_facts.distribution == 'AlmaLinux'
 
-    - name: "Update apt cache and installed packages"  # noqa: package-latest
+    - name: "FAIL2BAN | Refresh Debian package metadata"
+      become: true
+      become_user: root
       ansible.builtin.apt:
-        force_apt_get: true
-        state: latest
         update_cache: true
-      when: ansible_pkg_mgr == "apt"
+      when: ansible_facts.pkg_mgr == 'apt'
 
-    - name: "Update dnf cache and installed packages"  # noqa: package-latest
-      ansible.builtin.dnf:
-        name: "*"
-        state: latest
-        update_cache: true
-      when: ansible_pkg_mgr == "dnf"
+    - name: "FAIL2BAN | Create fixture directories"
+      become: true
+      become_user: root
+      ansible.builtin.file:
+        path: "/etc/fail2ban/{{ __fail2ban_directory }}"
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+      loop: [action.d, filter.d, jail.d]
+      loop_control:
+        loop_var: __fail2ban_directory
 
-    - name: "Update pacman cache and installed packages"
-      community.general.pacman:
-        update_cache: true
-        upgrade: true
-      when: ansible_pkg_mgr == "pacman"
+    - name: "FAIL2BAN | Seed options that the role must remove"
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        dest: "/etc/fail2ban/{{ __fail2ban_fixture.path }}"
+        content: "{{ __fail2ban_fixture.content }}"
+        owner: root
+        group: root
+        mode: '0640'
+      loop:
+        - path: jail.d/00-molecule.conf
+          content: |
+            [DEFAULT]
+            bantime = 120
+        - path: jail.local
+          content: |
+            [DEFAULT]
+            bantime = 5
+        - path: jail.d/molecule.local
+          content: |
+            [molecule]
+            findtime = 1
+        - path: filter.d/molecule.local
+          content: |
+            [Definition]
+            ignoreregex = ^.*$
+        - path: action.d/molecule.local
+          content: |
+            [Definition]
+            actionban = false
+        - path: action.d/molecule.conf
+          content: |
+            [Definition]
+            actionban = touch /tmp/fail2ban-molecule.banned
+      loop_control:
+        loop_var: __fail2ban_fixture
+        label: "{{ __fail2ban_fixture.path }}"
 
-    - name: "Update yum cache and installed packages"  # noqa: package-latest
-      ansible.builtin.yum:
-        name: "*"
-        state: latest
-        update_cache: true
-      when: ansible_pkg_mgr == "yum"
-
-    - name: "Update zypper cache and installed packages"  # noqa: package-latest
-      community.general.zypper:
-        name: "*"
-        state: latest
-        update_cache: true
-      when: ansible_pkg_mgr == "zypper"
+    - name: "FAIL2BAN | Create the application log"
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        dest: /var/log/fail2ban-molecule.log
+        content: ''
+        owner: root
+        group: root
+        mode: '0640'

@@ -1,21 +1,22 @@
 ---
-# role: jomrr.fail2ban
+# role: fail2ban
 # file: tasks/action.yml
 
-- name: "Fail2ban | Create custom action"
+- name: "FAIL2BAN | Manage custom action"
   become: true
+  become_user: root
   community.general.ini_file:
-    dest: "/etc/fail2ban/action.d/{{ action.name }}.local"
-    section: "{{ item.section }}"
-    option: "{{ item.option }}"
-    value: "{{ item.value }}"
-    state: "{{ item.state | default('present') }}"
-    create: true
+    path: "/etc/fail2ban/action.d/{{ __fail2ban_option.0.name }}.local"
+    section: "{{ __fail2ban_option.1.section }}"
+    option: "{{ __fail2ban_option.1.option }}"
+    value: "{{ __fail2ban_option.1.value | default(omit) }}"
+    state: "{{ __fail2ban_option.1.state | default('present') }}"
     owner: root
     group: root
     mode: '0640'
-  loop: "{{ action.options }}"
+    backup: true
+  loop: "{{ fail2ban_actions | subelements('options') }}"
   loop_control:
-    loop_var: item
-  notify: Restart fail2ban
-  when: action.options is defined
+    loop_var: __fail2ban_option
+    label: "{{ __fail2ban_option.0.name }}: {{ __fail2ban_option.1.section }}.{{ __fail2ban_option.1.option }}"
+  notify: restart service

@@ -1,8 +1,11 @@
 ---
-# role: jomrr.fail2ban
+# role: fail2ban
 # file: handlers/main.yml
 
-- name: Restart fail2ban
+- name: "FAIL2BAN | Restart fail2ban"
+  become: true
+  become_user: root
   ansible.builtin.service:
     name: fail2ban
     state: restarted
+  listen: restart service

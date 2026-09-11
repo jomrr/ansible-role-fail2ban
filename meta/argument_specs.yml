@@ -1,0 +1,236 @@
+---
+# role: fail2ban
+# file: meta/argument_specs.yml
+
+argument_specs:
+  main:
+    short_description: Install, configure, enable, and start fail2ban.
+    options:
+      fail2ban_dbfile:
+        type: str
+        default: /var/lib/fail2ban/fail2ban.sqlite3
+        description:
+          - Persistent ban database path; use 'None' to disable persistence.
+      fail2ban_dbmaxmatches:
+        type: int
+        default: 10
+        description:
+          - Maximum number of matched log entries stored per ban in the database.
+      fail2ban_dbpurgeage:
+        type: raw
+        default: 86400
+        description:
+          - Retention period for stored bans, in seconds or Fail2ban duration notation.
+      fail2ban_loglevel:
+        type: str
+        default: INFO
+        description:
+          - Daemon logging level.
+      fail2ban_logtarget:
+        type: str
+        default: /var/log/fail2ban.log
+        description:
+          - Log output destination, such as a file path, SYSLOG, or STDERR.
+      fail2ban_pidfile:
+        type: str
+        default: /var/run/fail2ban/fail2ban.pid
+        description:
+          - Daemon process ID file path.
+      fail2ban_socket:
+        type: str
+        default: /var/run/fail2ban/fail2ban.sock
+        description:
+          - Unix socket path used by fail2ban-client.
+      fail2ban_stacksize:
+        type: int
+        default: 0
+        description:
+          - Thread stack size in KiB; zero uses the platform default.
+      fail2ban_syslogsocket:
+        type: str
+        default: auto
+        description:
+          - Syslog socket path; auto selects the platform socket when logging to SYSLOG.
+      fail2ban_jail_local:
+        type: list
+        elements: dict
+        default:
+          - section: DEFAULT
+            option: bantime
+            value: 3600
+          - section: DEFAULT
+            option: findtime
+            value: 600
+          - section: DEFAULT
+            option: maxretry
+            value: 3
+          - section: DEFAULT
+            option: ignoreip
+            value: 127.0.0.1/8 ::1 {{ ansible_facts.default_ipv4.network }}/{{ ansible_facts.default_ipv4.netmask
+              }}
+          - section: DEFAULT
+            option: destemail
+            value: root@localhost
+          - section: DEFAULT
+            option: sender
+            value: root@{{ ansible_facts.fqdn }}
+          - section: DEFAULT
+            option: mta
+            value: sendmail
+          - section: DEFAULT
+            option: action
+            value: '%(action_)s'
+        description:
+          - INI options in jail.local; removing an option needs no value.
+        options:
+          section:
+            type: str
+            required: true
+            description:
+              - INI section containing the option.
+          option:
+            type: str
+            required: true
+            description:
+              - INI option name.
+          value:
+            type: raw
+            description:
+              - INI value, required by the module when state is present.
+          state:
+            type: str
+            default: present
+            choices:
+              - present
+              - absent
+            description:
+              - Whether the option is present or absent.
+      fail2ban_actions:
+        type: list
+        elements: dict
+        default: []
+        description:
+          - Named action.d/*.local files and their INI options.
+          - Each entry requires name and options; use an empty options list for no changes.
+        options:
+          name:
+            type: str
+            required: true
+            description:
+              - Nonempty filename stem without path separators or whitespace; the role adds
+                .local.
+          options:
+            type: list
+            elements: dict
+            required: true
+            description:
+              - INI options to manage; absent options need no value.
+            options:
+              section:
+                type: str
+                required: true
+                description:
+                  - INI section containing the option.
+              option:
+                type: str
+                required: true
+                description:
+                  - INI option name.
+              value:
+                type: raw
+                description:
+                  - INI value, required by the module when state is present.
+              state:
+                type: str
+                default: present
+                choices:
+                  - present
+                  - absent
+                description:
+                  - Whether the option is present or absent.
+      fail2ban_filters:
+        type: list
+        elements: dict
+        default: []
+        description:
+          - Named filter.d/*.local files and their INI options.
+          - Each entry requires name and options; use an empty options list for no changes.
+        options:
+          name:
+            type: str
+            required: true
+            description:
+              - Nonempty filename stem without path separators or whitespace; the role adds
+                .local.
+          options:
+            type: list
+            elements: dict
+            required: true
+            description:
+              - INI options to manage; absent options need no value.
+            options:
+              section:
+                type: str
+                required: true
+                description:
+                  - INI section containing the option.
+              option:
+                type: str
+                required: true
+                description:
+                  - INI option name.
+              value:
+                type: raw
+                description:
+                  - INI value, required by the module when state is present.
+              state:
+                type: str
+                default: present
+                choices:
+                  - present
+                  - absent
+                description:
+                  - Whether the option is present or absent.
+      fail2ban_jails:
+        type: list
+        elements: dict
+        default: []
+        description:
+          - Named jail.d/*.local files and their INI options.
+          - Each entry requires name and options; use an empty options list for no changes.
+        options:
+          name:
+            type: str
+            required: true
+            description:
+              - Nonempty filename stem without path separators or whitespace; the role adds
+                .local.
+          options:
+            type: list
+            elements: dict
+            required: true
+            description:
+              - INI options to manage; absent options need no value.
+            options:
+              section:
+                type: str
+                required: true
+                description:
+                  - INI section containing the option.
+              option:
+                type: str
+                required: true
+                description:
+                  - INI option name.
+              value:
+                type: raw
+                description:
+                  - INI value, required by the module when state is present.
+              state:
+                type: str
+                default: present
+                choices:
+                  - present
+                  - absent
+                description:
+                  - Whether the option is present or absent.
